@@ -4,12 +4,18 @@ import androidx.room.*
 
 @Dao
 interface CharacterDao {
-    @Query("SELECT * FROM characters WHERE name LIKE :name AND species LIKE :species AND status LIKE :status AND gender LIKE :gender")
+    @Query("""
+    SELECT * FROM characters
+    WHERE (:name IS NULL OR name LIKE '%' || :name || '%')
+      AND (:species IS NULL OR species = :species)
+      AND (:status IS NULL OR status = :status)
+      AND (:gender IS NULL OR gender = :gender)
+""")
     suspend fun getCharacters(
-        name: String,
-        species: String,
-        status: String,
-        gender: String
+        name: String?,
+        species: String?,
+        status: String?,
+        gender: String?
     ): List<CharacterEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

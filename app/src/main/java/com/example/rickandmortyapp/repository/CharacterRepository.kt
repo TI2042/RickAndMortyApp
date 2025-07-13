@@ -1,5 +1,6 @@
 package com.example.rickandmortyapp.repository
 
+import android.util.Log
 import com.example.rickandmortyapp.data.local.CharacterDao
 import com.example.rickandmortyapp.data.local.CharacterEntity
 import com.example.rickandmortyapp.data.remote.RickAndMortyApi
@@ -61,5 +62,6 @@ class CharacterRepository(
                 gender = "%${gender ?: ""}%"
             )
         }
+
    }
 }

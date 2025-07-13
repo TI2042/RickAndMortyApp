@@ -9,6 +9,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.rickandmortyapp.data.local.CharacterEntity
 import com.example.rickandmortyapp.repository.CharacterRepository
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class CharacterListViewModel(
@@ -19,19 +21,37 @@ class CharacterListViewModel(
     var isLoading by mutableStateOf(false)
     var error by mutableStateOf<String?>(null)
 
+    var searchQuery by mutableStateOf("")
+        private set
+
+    private var searchJob: Job? = null
+
+    fun onSearchQueryChange(query: String) {
+        searchQuery = query
+
+        searchJob?.cancel() // Отменяем предыдущий запуск, если пользователь вводит быстро
+
+        searchJob = viewModelScope.launch {
+            delay(500) // 500 мс — задержка (можно изменить)
+            loadCharacters()
+        }
+    }
     fun loadCharacters(
         page: Int = 1,
-        name: String? = null,
-        species: String? = null,
-        status: String? = null,
-        gender: String? = null,
         offline: Boolean = false
     ) {
         viewModelScope.launch {
             isLoading = true
             error = null
             try {
-                characters = repo.getCharacters(page, name, species, status, gender, offline)
+                characters = repo.getCharacters(
+                    page = page,
+                    name = if (searchQuery.isNotEmpty()) searchQuery else null,
+                    species = selectedSpecies,
+                    status = selectedStatus,
+                    gender = selectedGender,
+                    offline = offline
+                )
             } catch (e: Exception) {
                 error = "Ошибка загрузки"
             }
@@ -47,6 +67,29 @@ class CharacterListViewModel(
             throw IllegalArgumentException("Unknown ViewModel class")
         }
     }
+
+    var selectedStatus by mutableStateOf<String?>(null)
+        private set
+
+    var selectedSpecies by mutableStateOf<String?>(null)
+        private set
+
+    var selectedGender by mutableStateOf<String?>(null)
+        private set
+
+
+    fun onStatusSelected(status: String?) {
+        selectedStatus = status
+    }
+
+    fun onSpeciesSelected(species: String?) {
+        selectedSpecies = species
+    }
+
+    fun onGenderSelected(gender: String?) {
+        selectedGender = gender
+    }
+
     init {
         loadCharacters()
     }
