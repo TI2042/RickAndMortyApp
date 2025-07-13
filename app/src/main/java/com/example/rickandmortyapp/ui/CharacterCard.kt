@@ -1,37 +1,96 @@
-package com.example.rickandmortyapp.ui
-
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.Card
-import androidx.compose.material.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
+import androidx.compose.ui.text.style.TextOverflow
 import com.example.rickandmortyapp.data.local.CharacterEntity
 
 @Composable
-fun CharacterCard(character: CharacterEntity, onClick: () -> Unit) {
+fun CharacterCard(
+    character: CharacterEntity,
+    onClick: () -> Unit
+) {
     Card(
         modifier = Modifier
-            .padding(8.dp)
+            .padding(4.dp)
             .fillMaxWidth()
-            .clickable { onClick() }
+            .clickable { onClick() },
+        shape = RoundedCornerShape(16.dp),
+        elevation = 8.dp
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Image(
-                painter = rememberAsyncImagePainter(character.image),
-                contentDescription = character.name,
-                modifier = Modifier.size(120.dp)
+        Column(
+            modifier = Modifier
+                .background(Color.White)
+        ) {
+            // Картинка
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(160.dp)
+            ) {
+                Image(
+                    painter = rememberAsyncImagePainter(character.image),
+                    contentDescription = character.name,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+                )
+            }
+
+            // Имя
+            Text(
+                text = character.name,
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.subtitle1,
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
-            Text(character.name)
-            Text("${character.species} | ${character.gender}")
-            Text(character.status)
+
+            // Статус с кружочком и вид/пол
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(horizontal = 12.dp)
+            ) {
+                StatusDot(character.status)
+                Spacer(Modifier.width(6.dp))
+                Text(
+                    text = character.status.capitalize(),
+                    style = MaterialTheme.typography.body2
+                )
+            }
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = "${character.species} • ${character.gender.capitalize()}",
+                style = MaterialTheme.typography.body2,
+                color = Color.Gray,
+                modifier = Modifier.padding(start = 12.dp, bottom = 12.dp)
+            )
         }
     }
+}
+
+// Вспомогательная функция для цветного кружка статуса
+@Composable
+fun StatusDot(status: String) {
+    val color = when (status.lowercase()) {
+        "alive" -> Color(0xFF43A047)
+        "dead" -> Color(0xFFE53935)
+        else -> Color(0xFFBDBDBD)
+    }
+    Box(
+        modifier = Modifier
+            .size(10.dp)
+            .background(color = color, shape = RoundedCornerShape(50))
+    )
 }

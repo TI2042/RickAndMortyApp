@@ -1,4 +1,5 @@
 package com.example.rickandmortyapp.ui
+import CharacterCard
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.material.*
