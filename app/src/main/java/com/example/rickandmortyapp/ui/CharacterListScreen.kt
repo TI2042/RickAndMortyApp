@@ -8,6 +8,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import com.example.rickandmortyapp.data.local.CharacterEntity
+import com.example.rickandmortyapp.ui.customdesigne.PrettyFilterRow
+import com.example.rickandmortyapp.ui.customdesigne.PrettySearchBar
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
@@ -22,17 +24,13 @@ fun CharacterListScreen(
 
     Column(modifier = Modifier.fillMaxSize()) {
         // Поисковая строка
-        OutlinedTextField(
+        PrettySearchBar(
             value = viewModel.searchQuery,
-            onValueChange = { viewModel.onSearchQueryChange(it) },
-            label = { Text("Поиск персонажей") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
+            onValueChange = { viewModel.onSearchQueryChange(it) }
         )
 
-        // Фильтры
-        FilterRow(
+        // Красивые фильтры
+        PrettyFilterRow(
             status = viewModel.selectedStatus,
             onStatusSelected = { viewModel.onStatusSelected(it) },
             species = viewModel.selectedSpecies,
