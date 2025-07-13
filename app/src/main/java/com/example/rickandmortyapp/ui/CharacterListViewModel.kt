@@ -24,6 +24,15 @@ class CharacterListViewModel(
     var searchQuery by mutableStateOf("")
         private set
 
+    var currentPage by mutableStateOf(1)
+        private set
+
+    var isLastPage by mutableStateOf(false)
+        private set
+
+    private var _isLoadingNextPage by mutableStateOf(false)
+    val isLoadingNextPage: Boolean get() = _isLoadingNextPage
+
     private var searchJob: Job? = null
     private var filterJob: Job? = null
 
@@ -60,24 +69,34 @@ class CharacterListViewModel(
     }
     fun loadCharacters(
         page: Int = 1,
-        offline: Boolean = false
+        offline: Boolean = false,
+        append: Boolean = false
     ) {
         viewModelScope.launch {
-            isLoading = true
+            if (append) _isLoadingNextPage = true else isLoading = true
             error = null
             try {
-                characters = repo.getCharacters(
+                val result = repo.getCharacters(
                     page = page,
-                    name = if (searchQuery.isNotEmpty()) searchQuery else null,
-                    species = selectedSpecies,
-                    status = selectedStatus,
-                    gender = selectedGender,
+                    name = searchQuery.ifBlank { null },
+                    species = if (selectedSpecies.isNullOrBlank()) null else selectedSpecies,
+                    status = if (selectedStatus.isNullOrBlank()) null else selectedStatus,
+                    gender = if (selectedGender.isNullOrBlank()) null else selectedGender,
                     offline = offline
                 )
+                if (append) {
+                    characters = characters + result
+                } else {
+                    characters = result
+                }
+                // Проверим: если меньше 20 персонажей — последняя страница
+                isLastPage = result.size < 20
+                currentPage = page
             } catch (e: Exception) {
-                error = "Ошибка загрузки"
+                error = "Ошибка загрузки: ${e.localizedMessage}"
             }
             isLoading = false
+            _isLoadingNextPage  = false
         }
     }
     class Factory(private val repo: CharacterRepository) : ViewModelProvider.Factory {
@@ -98,6 +117,11 @@ class CharacterListViewModel(
 
     var selectedGender by mutableStateOf<String?>(null)
         private set
+    fun loadNextPage() {
+        if (!isLastPage && !isLoadingNextPage) {
+            loadCharacters(page = currentPage + 1, append = true)
+        }
+    }
 
     init {
         loadCharacters()
