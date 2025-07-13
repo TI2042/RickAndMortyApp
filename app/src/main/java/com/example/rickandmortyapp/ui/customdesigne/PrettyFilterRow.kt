@@ -80,7 +80,7 @@ fun PrettyDropdown(
     ) {
         Text("$label: $displayText")
         Icon(
-            imageVector = Icons.Filled.Search, // Можно заменить на стрелку вниз
+            imageVector = Icons.Filled.Search,
             contentDescription = null,
             modifier = Modifier.size(18.dp).padding(start = 2.dp)
         )

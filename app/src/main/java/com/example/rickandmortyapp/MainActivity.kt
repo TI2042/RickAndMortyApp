@@ -24,12 +24,12 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Создаём базу данных Room один раз
+        
         val db = Room.databaseBuilder(
             applicationContext,
             AppDatabase::class.java, "rickandmorty-db"
         ).build()
-        // Создаём репозиторий (API + DAO)
+        
         val repository = CharacterRepository(
             RetrofitInstance.api,
             db.characterDao()
@@ -41,7 +41,7 @@ class MainActivity : ComponentActivity() {
 
                 NavHost(navController, startDestination = "list") {
                     composable("list") {
-                        // Создаём ViewModel вручную
+                        
                         val viewModel: CharacterListViewModel = viewModel(
                             factory = CharacterListViewModel.Factory(repository)
                         )
@@ -58,11 +58,11 @@ class MainActivity : ComponentActivity() {
                         arguments = listOf(navArgument("characterId") { type = NavType.IntType })
                     ) { backStackEntry ->
                         val characterId = backStackEntry.arguments?.getInt("characterId") ?: 0
-                        // Тут можно получить ViewModel выше или создать новую
+                        
                         val viewModel: CharacterListViewModel = viewModel(
                             factory = CharacterListViewModel.Factory(repository)
                         )
-                        // Находим нужного персонажа из уже загруженных
+                        
                         val character = viewModel.characters.firstOrNull { it.id == characterId }
                         if (character != null) {
                             CharacterDetailScreen(

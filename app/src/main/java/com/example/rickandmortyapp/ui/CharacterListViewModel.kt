@@ -89,7 +89,7 @@ class CharacterListViewModel(
                 } else {
                     characters = result
                 }
-                // Проверим: если меньше 20 персонажей — последняя страница
+                
                 isLastPage = result.size < 20
                 currentPage = page
             } catch (e: Exception) {

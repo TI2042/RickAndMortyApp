@@ -27,7 +27,6 @@ fun CharacterDetailScreen(
     character: CharacterEntity,
     onBack: () -> Unit
 ) {
-    // Градиентный фон для современности
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -42,7 +41,6 @@ fun CharacterDetailScreen(
                 .fillMaxSize()
                 .padding(horizontal = 16.dp)
         ) {
-            // Кнопка "Назад"
             IconButton(
                 onClick = onBack,
                 modifier = Modifier
@@ -57,8 +55,6 @@ fun CharacterDetailScreen(
             }
 
             Spacer(Modifier.height(8.dp))
-
-            // Аватар персонажа с тенью
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
@@ -76,10 +72,7 @@ fun CharacterDetailScreen(
                         .clip(CircleShape)
                 )
             }
-
             Spacer(Modifier.height(14.dp))
-
-            // Имя персонажа
             Text(
                 character.name,
                 fontWeight = FontWeight.Bold,
@@ -92,12 +85,10 @@ fun CharacterDetailScreen(
 
             Spacer(Modifier.height(8.dp))
 
-            // Красивый бейдж статуса
             StatusBadgeLarge(character.status)
 
             Spacer(Modifier.height(18.dp))
 
-            // "Карточка" с подробной инфой
             Card(
                 shape = RoundedCornerShape(24.dp),
                 elevation = 8.dp,
@@ -116,7 +107,7 @@ fun CharacterDetailScreen(
                         label = "Пол",
                         value = character.gender.capitalize())
                     DetailRow(icon = "\uD83D\uDCCD", label = "Статус", value = character.status.capitalize())
-                    // Можно добавить еще больше информации, если есть: origin/location и др.
+
                 }
             }
             Spacer(Modifier.weight(1f))

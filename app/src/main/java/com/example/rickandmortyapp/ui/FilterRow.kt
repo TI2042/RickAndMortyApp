@@ -44,7 +44,7 @@ fun FilterRow(
             selectedOption = gender,
             onOptionSelected = onGenderSelected
         )
-        // Для вида можешь сделать как простое поле ввода или список популярных видов:
+        
         Spacer(Modifier.width(8.dp))
         OutlinedTextField(
             value = species ?: "",
@@ -57,7 +57,7 @@ fun FilterRow(
     }
 }
 
-// Универсальный DropDown
+
 @Composable
 fun DropdownFilter(
     label: String,

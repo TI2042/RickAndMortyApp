@@ -32,7 +32,6 @@ fun CharacterCard(
             modifier = Modifier
                 .background(Color.White)
         ) {
-            // Картинка
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -46,8 +45,6 @@ fun CharacterCard(
                         .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
                 )
             }
-
-            // Имя
             Text(
                 text = character.name,
                 fontWeight = FontWeight.Bold,
@@ -56,8 +53,6 @@ fun CharacterCard(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-
-            // Статус с кружочком и вид/пол
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(horizontal = 12.dp)
@@ -79,8 +74,6 @@ fun CharacterCard(
         }
     }
 }
-
-// Вспомогательная функция для цветного кружка статуса
 @Composable
 fun StatusDot(status: String) {
     val color = when (status.lowercase()) {

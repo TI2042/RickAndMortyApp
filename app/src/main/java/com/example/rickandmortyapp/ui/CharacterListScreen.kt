@@ -23,13 +23,13 @@ fun CharacterListScreen(
     val error = viewModel.error
 
     Column(modifier = Modifier.fillMaxSize()) {
-        // Поисковая строка
+        
         PrettySearchBar(
             value = viewModel.searchQuery,
             onValueChange = { viewModel.onSearchQueryChange(it) }
         )
 
-        // Красивые фильтры
+        
         PrettyFilterRow(
             status = viewModel.selectedStatus,
             onStatusSelected = { viewModel.onStatusSelected(it) },
@@ -39,17 +39,17 @@ fun CharacterListScreen(
             onGenderSelected = { viewModel.onGenderSelected(it) }
         )
 
-        // Для удобства: выводим, сколько найдено
+        
         Text("Найдено: ${characters.size}", modifier = Modifier.padding(8.dp))
 
-        // Основной контент
+        
         val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isLoading)
 
         Box(modifier = Modifier.fillMaxSize().weight(1f)) {
             SwipeRefresh(
                 state = swipeRefreshState,
                 onRefresh = {
-                    // Обновление первой страницы с текущими фильтрами
+                    
                     viewModel.loadCharacters(page = 1, offline = false)
                 }
             ) {
@@ -79,7 +79,7 @@ fun CharacterListScreen(
                             itemsIndexed(characters, key = { _, it -> it.id }) { index, character ->
                                 CharacterCard(character, onClick = { onCharacterClick(character) })
 
-                                // Подгрузка следующей страницы при прокрутке вниз
+                                
                                 if (index >= characters.size - 4 &&
                                     !viewModel.isLastPage &&
                                     !viewModel.isLoading &&
@@ -90,7 +90,7 @@ fun CharacterListScreen(
                                     }
                                 }
                             }
-                            // Индикатор подгрузки страницы (внизу списка)
+                            
                             if (viewModel.isLoadingNextPage) {
                                 item(span = { GridItemSpan(maxLineSpan) }) {
                                     Box(
@@ -107,7 +107,7 @@ fun CharacterListScreen(
                     }
                 }
             }
-            // Главный индикатор (на весь экран при первичной загрузке)
+            
             if (isLoading && characters.isEmpty()) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
