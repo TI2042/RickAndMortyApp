@@ -25,14 +25,36 @@ class CharacterListViewModel(
         private set
 
     private var searchJob: Job? = null
+    private var filterJob: Job? = null
 
     fun onSearchQueryChange(query: String) {
         searchQuery = query
-
-        searchJob?.cancel() // Отменяем предыдущий запуск, если пользователь вводит быстро
-
+        searchJob?.cancel()
         searchJob = viewModelScope.launch {
-            delay(500) // 500 мс — задержка (можно изменить)
+            delay(500)
+            loadCharacters()
+        }
+    }
+
+    fun onStatusSelected(status: String?) {
+        selectedStatus = status
+        debounceFilters()
+    }
+
+    fun onSpeciesSelected(species: String?) {
+        selectedSpecies = species
+        debounceFilters()
+    }
+
+    fun onGenderSelected(gender: String?) {
+        selectedGender = gender
+        debounceFilters()
+    }
+
+    private fun debounceFilters() {
+        filterJob?.cancel()
+        filterJob = viewModelScope.launch {
+            delay(500)
             loadCharacters()
         }
     }
@@ -76,19 +98,6 @@ class CharacterListViewModel(
 
     var selectedGender by mutableStateOf<String?>(null)
         private set
-
-
-    fun onStatusSelected(status: String?) {
-        selectedStatus = status
-    }
-
-    fun onSpeciesSelected(species: String?) {
-        selectedSpecies = species
-    }
-
-    fun onGenderSelected(gender: String?) {
-        selectedGender = gender
-    }
 
     init {
         loadCharacters()
