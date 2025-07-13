@@ -1,26 +1,14 @@
 package com.example.rickandmortyapp.ui
-
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.runtime.Composable
-import androidx.compose.material.Text
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.OutlinedTextField
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.*
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import com.example.rickandmortyapp.data.local.CharacterEntity
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.ui.Alignment
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 @Composable
 fun CharacterListScreen(
@@ -30,76 +18,99 @@ fun CharacterListScreen(
     val characters = viewModel.characters
     val isLoading = viewModel.isLoading
     val error = viewModel.error
-    val searchQuery = viewModel.searchQuery
 
-    Column {
+    Column(modifier = Modifier.fillMaxSize()) {
         // Поисковая строка
         OutlinedTextField(
             value = viewModel.searchQuery,
-            onValueChange = {
-                viewModel.onSearchQueryChange(it)
-            },
+            onValueChange = { viewModel.onSearchQueryChange(it) },
             label = { Text("Поиск персонажей") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
         )
 
-        // Фильтры (статус, вид, пол)
+        // Фильтры
         FilterRow(
             status = viewModel.selectedStatus,
-            onStatusSelected = {
-                viewModel.onStatusSelected(it)
-                viewModel.loadCharacters()
-            },
+            onStatusSelected = { viewModel.onStatusSelected(it) },
             species = viewModel.selectedSpecies,
-            onSpeciesSelected = {
-                viewModel.onSpeciesSelected(it)
-                viewModel.loadCharacters()
-            },
+            onSpeciesSelected = { viewModel.onSpeciesSelected(it) },
             gender = viewModel.selectedGender,
-            onGenderSelected = {
-                viewModel.onGenderSelected(it)
-                viewModel.loadCharacters()
-            }
+            onGenderSelected = { viewModel.onGenderSelected(it) }
         )
 
-        if (isLoading) {
-            CircularProgressIndicator()
-        } else if (error != null) {
-            Text(error)
-        } else if (characters.isEmpty()) {
-            Text("Ничего не найдено")
-        } else {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                modifier = Modifier.fillMaxSize().padding(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+        // Для удобства: выводим, сколько найдено
+        Text("Найдено: ${characters.size}", modifier = Modifier.padding(8.dp))
+
+        // Основной контент
+        val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isLoading)
+
+        Box(modifier = Modifier.fillMaxSize().weight(1f)) {
+            SwipeRefresh(
+                state = swipeRefreshState,
+                onRefresh = {
+                    // Обновление первой страницы с текущими фильтрами
+                    viewModel.loadCharacters(page = 1, offline = false)
+                }
             ) {
-                itemsIndexed(characters, key = { _, it -> it.id }) { index, character ->
-                    CharacterCard(character, onClick = { onCharacterClick(character) })
-
-                    // Если пользователь прокрутил к предпоследнему элементу — грузим следующую страницу
-                    if (index >= characters.size - 4 && !viewModel.isLastPage && !viewModel.isLoading) {
-                        LaunchedEffect(Unit) {
-                            viewModel.loadNextPage()
-                        }
+                when {
+                    error != null -> {
+                        Text(
+                            error ?: "",
+                            color = MaterialTheme.colors.error,
+                            modifier = Modifier.align(Alignment.Center)
+                        )
                     }
-                }
-                if (viewModel.isLoadingNextPage) {
-                    item(span = { GridItemSpan(maxLineSpan) }) {
-                        Box(
+                    characters.isEmpty() && !isLoading -> {
+                        Text(
+                            "Ничего не найдено",
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
+                    else -> {
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(2),
                             modifier = Modifier
-                                .fillMaxWidth()
+                                .fillMaxSize()
                                 .padding(8.dp),
-                            contentAlignment = Alignment.Center
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            CircularProgressIndicator(Modifier.padding(16.dp))
+                            itemsIndexed(characters, key = { _, it -> it.id }) { index, character ->
+                                CharacterCard(character, onClick = { onCharacterClick(character) })
+
+                                // Подгрузка следующей страницы при прокрутке вниз
+                                if (index >= characters.size - 4 &&
+                                    !viewModel.isLastPage &&
+                                    !viewModel.isLoading &&
+                                    !viewModel.isLoadingNextPage
+                                ) {
+                                    LaunchedEffect(Unit) {
+                                        viewModel.loadNextPage()
+                                    }
+                                }
+                            }
+                            // Индикатор подгрузки страницы (внизу списка)
+                            if (viewModel.isLoadingNextPage) {
+                                item(span = { GridItemSpan(maxLineSpan) }) {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(8.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        CircularProgressIndicator(Modifier.padding(16.dp))
+                                    }
+                                }
+                            }
                         }
                     }
                 }
-
+            }
+            // Главный индикатор (на весь экран при первичной загрузке)
+            if (isLoading && characters.isEmpty()) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
         }
     }
