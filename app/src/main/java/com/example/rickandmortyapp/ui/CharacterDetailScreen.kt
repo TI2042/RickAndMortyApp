@@ -1,7 +1,9 @@
 package com.example.rickandmortyapp.ui
 
+import CharacterCard
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -41,7 +43,6 @@ fun CharacterDetailScreen(
     val character by viewModel.character.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
-    // Загружаем персонажа при открытии экрана
     LaunchedEffect(characterId) {
         viewModel.loadCharacter(characterId)
     }
@@ -72,44 +73,51 @@ fun CharacterDetailContent(
     Column(
         Modifier
             .fillMaxSize()
-            .padding(20.dp)
             .verticalScroll(rememberScrollState())
+            .padding(horizontal = 16.dp, vertical = 24.dp)
     ) {
         OutlinedButton(
             onClick = onBack,
-            modifier = Modifier.padding(bottom = 12.dp)
+            modifier = Modifier.padding(bottom = 16.dp)
         ) {
             Text(stringResource(R.string.back))
         }
 
-        Image(
-            painter = rememberAsyncImagePainter(character.image),
-            contentDescription = character.name,
-            modifier = Modifier
-                .size(200.dp)
-                .clip(CircleShape)
-                .align(Alignment.CenterHorizontally)
-        )
-
-        Spacer(Modifier.height(20.dp))
-
-        Text(
-            text = character.name,
-            style = MaterialTheme.typography.h5,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        )
-
-        Spacer(Modifier.height(16.dp))
-
-        StatusRow(character)
-
-        Spacer(Modifier.height(8.dp))
-
-        InfoRow(label = stringResource(R.string.filter_species), value = character.species)
-        InfoRow(label = stringResource(R.string.filter_gender), value = displayGender(character.gender))
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.large,
+            elevation = 8.dp
+        ) {
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = rememberAsyncImagePainter(character.image),
+                    contentDescription = character.name,
+                    modifier = Modifier
+                        .size(140.dp)
+                        .clip(CircleShape)
+                        .border(4.dp, MaterialTheme.colors.primary, CircleShape)
+                )
+                Spacer(Modifier.height(16.dp))
+                Text(
+                    text = character.name,
+                    style = MaterialTheme.typography.h5,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(Modifier.height(8.dp))
+                StatusRow(character)
+                Divider(Modifier.padding(vertical = 8.dp))
+                InfoRow(label = stringResource(R.string.filter_species), value = character.species)
+                InfoRow(label = stringResource(R.string.filter_gender), value = displayGender(character.gender))
+            }
+        }
     }
 }
+
 
 @Composable
 fun StatusRow(character: CharacterEntity) {

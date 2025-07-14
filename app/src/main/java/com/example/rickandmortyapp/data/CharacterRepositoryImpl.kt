@@ -66,10 +66,8 @@ class CharacterRepositoryImpl(
     }
 
     override suspend fun getCharacterById(id: Int): CharacterEntity? {
-
         val cached = dao.getCharacterById(id)
         if (cached != null) return cached
-
         return try {
             val dto = api.getCharacterById(id)
             val entity = CharacterEntity(

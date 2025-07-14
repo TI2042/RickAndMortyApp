@@ -26,4 +26,5 @@ class CharacterDetailViewModel(
             _isLoading.value = false
         }
     }
+
 }
