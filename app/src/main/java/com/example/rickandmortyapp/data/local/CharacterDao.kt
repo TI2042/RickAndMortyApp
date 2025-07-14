@@ -21,7 +21,11 @@ interface CharacterDao {
         offset: Int
     ): List<CharacterEntity>
 
+    @Query("SELECT * FROM characters WHERE id = :id LIMIT 1")
+    suspend fun getCharacterById(id: Int): CharacterEntity?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(characters: List<CharacterEntity>)
+
 }
 

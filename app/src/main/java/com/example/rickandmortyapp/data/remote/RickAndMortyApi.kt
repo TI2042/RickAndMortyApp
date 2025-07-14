@@ -3,6 +3,7 @@ package com.example.rickandmortyapp.data.remote
 import com.example.rickandmortyapp.data.local.Gender
 import com.example.rickandmortyapp.data.local.Status
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface RickAndMortyApi {
@@ -14,6 +15,9 @@ interface RickAndMortyApi {
         @Query("species") species: String? = null,
         @Query("gender") gender: Gender? = null
     ): CharacterResponse
+
+    @GET("character/{id}")
+    suspend fun getCharacterById(@Path("id") id: Int): CharacterDto
 }
 
 data class CharacterResponse(

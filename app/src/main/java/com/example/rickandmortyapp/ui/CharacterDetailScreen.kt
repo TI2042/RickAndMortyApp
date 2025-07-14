@@ -3,12 +3,17 @@ package com.example.rickandmortyapp.ui
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,157 +28,126 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import com.example.rickandmortyapp.R
 import com.example.rickandmortyapp.data.local.CharacterEntity
+import com.example.rickandmortyapp.ui.utils.displayGender
+import com.example.rickandmortyapp.ui.utils.displayStatus
+import com.example.rickandmortyapp.data.local.Status
 
 @Composable
 fun CharacterDetailScreen(
+    characterId: Int,
+    viewModel: CharacterDetailViewModel,
+    onBack: () -> Unit
+) {
+    val character by viewModel.character.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+
+    // Загружаем персонажа при открытии экрана
+    LaunchedEffect(characterId) {
+        viewModel.loadCharacter(characterId)
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        when {
+            isLoading -> {
+                CircularProgressIndicator(Modifier.align(Alignment.Center))
+            }
+            character == null -> {
+                Text(
+                    text = stringResource(R.string.nothing_found),
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
+            else -> {
+                CharacterDetailContent(character!!, onBack)
+            }
+        }
+    }
+}
+
+@Composable
+fun CharacterDetailContent(
     character: CharacterEntity,
     onBack: () -> Unit
 ) {
-    Box(
-        modifier = Modifier
+    Column(
+        Modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(Color(0xFFE0EAFC), Color(0xFFCFDEF3))
-                )
-            )
+            .padding(20.dp)
+            .verticalScroll(rememberScrollState())
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp)
+        OutlinedButton(
+            onClick = onBack,
+            modifier = Modifier.padding(bottom = 12.dp)
         ) {
-            IconButton(
-                onClick = onBack,
-                modifier = Modifier
-                    .padding(top = 16.dp)
-                    .size(42.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.ArrowBack,
-                    contentDescription = "Назад",
-                    tint = Color(0xFF535871)
-                )
-            }
-
-            Spacer(Modifier.height(8.dp))
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .size(160.dp)
-                    .shadow(12.dp, CircleShape)
-                    .clip(CircleShape)
-                    .background(Color.White.copy(alpha = 0.96f))
-            ) {
-                Image(
-                    painter = rememberAsyncImagePainter(character.image),
-                    contentDescription = character.name,
-                    modifier = Modifier
-                        .size(150.dp)
-                        .clip(CircleShape)
-                )
-            }
-            Spacer(Modifier.height(14.dp))
-            Text(
-                character.name,
-                fontWeight = FontWeight.Bold,
-                fontSize = 28.sp,
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-                color = Color(0xFF232949),
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-
-            Spacer(Modifier.height(8.dp))
-
-            StatusBadgeLarge(character.status.apiName)
-
-            Spacer(Modifier.height(18.dp))
-
-            Card(
-                shape = RoundedCornerShape(24.dp),
-                elevation = 8.dp,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color.White.copy(alpha = 0.98f))
-                        .padding(18.dp)
-                ) {
-                    DetailRow(icon = "\uD83D\uDC68", label = stringResource(R.string.filter_species), value = character.species)
-                    DetailRow(icon = if (character.gender.apiName.lowercase() == stringResource(R.string.filter_gender)) "\u2642" else "\u2640",
-                        label = "Пол",
-                        value = character.gender.apiName.capitalize())
-                    DetailRow(icon = "\uD83D\uDCCD", label = stringResource(R.string.filter_status), value = character.status.apiName.capitalize())
-
-                }
-            }
-            Spacer(Modifier.weight(1f))
+            Text(stringResource(R.string.back))
         }
-    }
-}
 
-@Composable
-fun StatusBadgeLarge(status: String) {
-    val color = when (status.lowercase()) {
-        "alive" -> com.example.rickandmortyapp.ui.theme.GreenAlive
-        "dead" -> com.example.rickandmortyapp.ui.theme.RedDead
-        else -> com.example.rickandmortyapp.ui.theme.WhiteOther
-    }
-    val emoji = when (status.lowercase()) {
-        "alive" -> "🟢"
-        "dead" -> "🔴"
-        else -> "⚪"
-    }
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentWidth(Alignment.CenterHorizontally)
-            .clip(RoundedCornerShape(50))
-            .background(color.copy(alpha = 0.16f))
-            .padding(horizontal = 20.dp, vertical = 8.dp)
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(emoji, fontSize = 18.sp)
-            Spacer(Modifier.width(8.dp))
-            Text(
-                text = status.capitalize(),
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 18.sp,
-                color = color
-            )
-        }
-    }
-}
-
-@Composable
-fun DetailRow(icon: String, label: String, value: String) {
-    Row(
-        modifier = Modifier
-            .padding(vertical = 7.dp)
-            .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = icon,
-            fontSize = 18.sp,
-            modifier = Modifier.width(28.dp)
+        Image(
+            painter = rememberAsyncImagePainter(character.image),
+            contentDescription = character.name,
+            modifier = Modifier
+                .size(200.dp)
+                .clip(CircleShape)
+                .align(Alignment.CenterHorizontally)
         )
+
+        Spacer(Modifier.height(20.dp))
+
+        Text(
+            text = character.name,
+            style = MaterialTheme.typography.h5,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
+
+        Spacer(Modifier.height(16.dp))
+
+        StatusRow(character)
+
+        Spacer(Modifier.height(8.dp))
+
+        InfoRow(label = stringResource(R.string.filter_species), value = character.species)
+        InfoRow(label = stringResource(R.string.filter_gender), value = displayGender(character.gender))
+    }
+}
+
+@Composable
+fun StatusRow(character: CharacterEntity) {
+    val color = when (character.status) {
+        Status.Alive -> MaterialTheme.colors.primary
+        Status.Dead -> MaterialTheme.colors.error
+        Status.Unknown -> MaterialTheme.colors.onSurface.copy(alpha = 0.4f)
+    }
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(vertical = 6.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(16.dp)
+                .clip(CircleShape)
+                .background(color)
+        )
+        Spacer(Modifier.width(10.dp))
+        Text(
+            text = displayStatus(character.status),
+            style = MaterialTheme.typography.subtitle1
+        )
+    }
+}
+
+@Composable
+fun InfoRow(label: String, value: String) {
+    Row(Modifier.padding(vertical = 3.dp)) {
         Text(
             text = "$label:",
-            color = Color(0xFF9099B7),
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.width(75.dp)
+            style = MaterialTheme.typography.body2,
+            fontWeight = FontWeight.SemiBold
         )
+        Spacer(Modifier.width(8.dp))
         Text(
             text = value,
-            fontWeight = FontWeight.Normal,
-            color = Color(0xFF232949),
-            fontSize = 16.sp
+            style = MaterialTheme.typography.body2
         )
     }
 }

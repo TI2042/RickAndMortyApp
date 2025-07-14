@@ -7,17 +7,20 @@ import androidx.compose.runtime.*
 import androidx.compose.material.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
 import androidx.room.Room
+import com.example.rickandmortyapp.data.CharacterRepositoryImpl
 import com.example.rickandmortyapp.data.local.AppDatabase
 import com.example.rickandmortyapp.data.remote.RetrofitInstance
 import com.example.rickandmortyapp.repository.CharacterRepository
 import com.example.rickandmortyapp.ui.CharacterListScreen
 import com.example.rickandmortyapp.ui.CharacterDetailScreen
+import com.example.rickandmortyapp.ui.CharacterDetailViewModel
 import com.example.rickandmortyapp.ui.CharacterListViewModel
 
 class MainActivity : ComponentActivity() {
@@ -29,11 +32,10 @@ class MainActivity : ComponentActivity() {
             applicationContext,
             AppDatabase::class.java, "rickandmorty-db"
         ).build()
-        
-        val repository = CharacterRepository(
-            RetrofitInstance.api,
-            db.characterDao()
-        )
+
+        val api = RetrofitInstance.api
+        val repository: CharacterRepository = CharacterRepositoryImpl(api, db.characterDao())
+        val viewModel = CharacterListViewModel(repository)
 
         setContent {
             MaterialTheme {
@@ -64,13 +66,15 @@ class MainActivity : ComponentActivity() {
                         )
                         
                         val character = viewModel.characters.firstOrNull { it.id == characterId }
+                        val detailViewModel = remember { CharacterDetailViewModel(repository) }
                         if (character != null) {
                             CharacterDetailScreen(
-                                character = character,
+                                characterId = characterId,
+                                viewModel = detailViewModel,
                                 onBack = { navController.popBackStack() }
                             )
                         } else {
-                            Text("Персонаж не найден", modifier = Modifier.padding(16.dp))
+                            Text(stringResource(R.string.nothing_found), modifier = Modifier.padding(16.dp))
                         }
                     }
                 }
