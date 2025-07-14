@@ -1,3 +1,21 @@
 <resources>
     <string name="app_name">RickAndMortyApp</string>
+    <string name="search_placeholder">Поиск персонажей</string>
+    <string name="filter_status">Статус</string>
+    <string name="filter_gender">Пол</string>
+    <string name="filter_species">Вид</string>
+    <string name="filter_any">Любой</string>
+    <string name="found_count">Найдено: %1$d</string>
+    <string name="nothing_found">Ничего не найдено</string>
+    <string name="loading_error">Ошибка загрузки</string>
+    <string name="pull_to_refresh">Потяните вниз для обновления</string>
+    <string name="back">Назад</string>
+
+    <string name="female">female</string>
+    <string name="male">male</string>
+    <string name="genderless">genderless</string>
+
+    <string name="alive">alive</string>
+    <string name="dead">dead</string>
+    <string name="unknown">unknown</string>
 </resources>

@@ -15,11 +15,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import com.example.rickandmortyapp.R
 import com.example.rickandmortyapp.data.local.CharacterEntity
 
 @Composable
@@ -85,7 +87,7 @@ fun CharacterDetailScreen(
 
             Spacer(Modifier.height(8.dp))
 
-            StatusBadgeLarge(character.status)
+            StatusBadgeLarge(character.status.apiName)
 
             Spacer(Modifier.height(18.dp))
 
@@ -102,11 +104,11 @@ fun CharacterDetailScreen(
                         .background(Color.White.copy(alpha = 0.98f))
                         .padding(18.dp)
                 ) {
-                    DetailRow(icon = "\uD83D\uDC68", label = "Вид", value = character.species)
-                    DetailRow(icon = if (character.gender.lowercase() == "male") "\u2642" else "\u2640",
+                    DetailRow(icon = "\uD83D\uDC68", label = stringResource(R.string.filter_species), value = character.species)
+                    DetailRow(icon = if (character.gender.apiName.lowercase() == stringResource(R.string.filter_gender)) "\u2642" else "\u2640",
                         label = "Пол",
-                        value = character.gender.capitalize())
-                    DetailRow(icon = "\uD83D\uDCCD", label = "Статус", value = character.status.capitalize())
+                        value = character.gender.apiName.capitalize())
+                    DetailRow(icon = "\uD83D\uDCCD", label = stringResource(R.string.filter_status), value = character.status.apiName.capitalize())
 
                 }
             }
@@ -118,9 +120,9 @@ fun CharacterDetailScreen(
 @Composable
 fun StatusBadgeLarge(status: String) {
     val color = when (status.lowercase()) {
-        "alive" -> Color(0xFF43A047)
-        "dead" -> Color(0xFFE53935)
-        else -> Color(0xFFBDBDBD)
+        "alive" -> com.example.rickandmortyapp.ui.theme.GreenAlive
+        "dead" -> com.example.rickandmortyapp.ui.theme.RedDead
+        else -> com.example.rickandmortyapp.ui.theme.WhiteOther
     }
     val emoji = when (status.lowercase()) {
         "alive" -> "🟢"

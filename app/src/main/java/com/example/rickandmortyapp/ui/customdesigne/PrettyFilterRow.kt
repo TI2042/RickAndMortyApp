@@ -12,16 +12,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-
+import androidx.compose.ui.res.stringResource
+import com.example.rickandmortyapp.R
+import com.example.rickandmortyapp.data.local.Gender
+import com.example.rickandmortyapp.data.local.Status
+import com.example.rickandmortyapp.ui.utils.displayGender
+import com.example.rickandmortyapp.ui.utils.displayStatus
 
 @Composable
 fun PrettyFilterRow(
-    status: String?,
-    onStatusSelected: (String?) -> Unit,
+    status: Status?,
+    onStatusSelected: (Status?) -> Unit,
     species: String?,
     onSpeciesSelected: (String?) -> Unit,
-    gender: String?,
-    onGenderSelected: (String?) -> Unit
+    gender: Gender?,
+    onGenderSelected: (Gender?) -> Unit,
+    statusLabel: String,
+    genderLabel: String,
+    speciesLabel: String,
+    anyLabel: String
 ) {
     Row(
         modifier = Modifier
@@ -30,59 +39,56 @@ fun PrettyFilterRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         PrettyDropdown(
-            label = "Статус",
-            options = listOf(null, "alive", "dead", "unknown"),
+            label = statusLabel,
+            options = listOf(null) + Status.values().toList(),
             selectedOption = status,
-            onOptionSelected = onStatusSelected
+            onOptionSelected = onStatusSelected,
+            anyLabel = anyLabel,
+            valueToString = { opt -> opt?.let { displayStatus(it) } ?: anyLabel }
         )
+
         PrettyDropdown(
-            label = "Пол",
-            options = listOf(null, "female", "male", "genderless", "unknown"),
+            label = genderLabel,
+            options = listOf(null) + Gender.values().toList(),
             selectedOption = gender,
-            onOptionSelected = onGenderSelected
+            onOptionSelected = onGenderSelected,
+            anyLabel = anyLabel,
+            valueToString = { opt -> opt?.let { displayGender(it) } ?: anyLabel }
         )
         OutlinedTextField(
             value = species ?: "",
-            onValueChange = { onSpeciesSelected(if (it.isNotEmpty()) it else null) },
-            placeholder = { Text("Вид") },
+            onValueChange = { onSpeciesSelected(it.ifEmpty { null }) },
+            placeholder = { Text(speciesLabel) },
             singleLine = true,
             modifier = Modifier
                 .weight(1f)
-                .shadow(4.dp, RoundedCornerShape(14.dp)),
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                backgroundColor = Color(0xFFF5F7FB),
-                focusedBorderColor = Color(0xFF7B61FF),
-                unfocusedBorderColor = Color(0xFFE0E4ED),
-                cursorColor = Color(0xFF7B61FF)
-            ),
-            shape = RoundedCornerShape(14.dp)
+                .padding(vertical = 2.dp)
         )
     }
 }
 
 @Composable
-fun PrettyDropdown(
+fun <T> PrettyDropdown(
     label: String,
-    options: List<String?>,
-    selectedOption: String?,
-    onOptionSelected: (String?) -> Unit
+    options: List<T?>,
+    selectedOption: T?,
+    onOptionSelected: (T?) -> Unit,
+    anyLabel: String,
+    valueToString: @Composable (T?) -> String
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val displayText = selectedOption?.capitalize() ?: "Любой"
+    val displayText = valueToString(selectedOption)
     OutlinedButton(
         onClick = { expanded = true },
-        shape = RoundedCornerShape(14.dp),
-        colors = ButtonDefaults.outlinedButtonColors(
-            backgroundColor = Color(0xFFF5F7FB),
-            contentColor = Color(0xFF535871)
-        ),
-        border = BorderStroke(1.dp, Color(0xFFE0E4ED)),
+        shape = MaterialTheme.shapes.medium,
+        modifier = Modifier.height(56.dp),
+        border = ButtonDefaults.outlinedBorder
     ) {
         Text("$label: $displayText")
         Icon(
-            imageVector = Icons.Filled.Search,
+            imageVector = Icons.Filled.ArrowDropDown,
             contentDescription = null,
-            modifier = Modifier.size(18.dp).padding(start = 2.dp)
+            modifier = Modifier.padding(start = 2.dp)
         )
         DropdownMenu(
             expanded = expanded,
@@ -93,10 +99,12 @@ fun PrettyDropdown(
                     onOptionSelected(option)
                     expanded = false
                 }) {
-                    Text(option?.capitalize() ?: "Любой")
+                    Text(valueToString(option))
                 }
             }
         }
     }
 }
+
+
 

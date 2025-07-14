@@ -1,31 +1,21 @@
 package com.example.rickandmortyapp.repository
 
-import android.util.Log
 import com.example.rickandmortyapp.data.local.CharacterDao
 import com.example.rickandmortyapp.data.local.CharacterEntity
+import com.example.rickandmortyapp.data.local.Gender
+import com.example.rickandmortyapp.data.local.Status
 import com.example.rickandmortyapp.data.remote.RickAndMortyApi
 
 class CharacterRepository(
     private val api: RickAndMortyApi,
     private val dao: CharacterDao
 ) {
-//    suspend fun getCharacters( page: Int,
-//        name: String?,
-//        species: String?,
-//       status: String?,
-//        gender: String?,
-//        offline: Boolean) : List<CharacterEntity> {
-//        val response = api.getCharacters()
-//        return response.results.map { dto ->
-//            CharacterEntity(dto.id, dto.name, dto.status, dto.species, dto.gender, dto.image)
-//        }
-//    }
    suspend fun getCharacters(
         page: Int,
         name: String?,
         species: String?,
-        status: String?,
-        gender: String?,
+        status: Status?,
+        gender: Gender?,
         offline: Boolean
    ): List<CharacterEntity> {
         return if (!offline) {
@@ -40,7 +30,14 @@ class CharacterRepository(
                 println("API LOADED: ${response.results.size}")
 
                 val entities = response.results.map { dto ->
-                    CharacterEntity(dto.id, dto.name, dto.status, dto.species, dto.gender, dto.image)
+                    CharacterEntity(
+                        dto.id,
+                        dto.name,
+                        Status.fromApiName(dto.status),
+                        dto.species,
+                        Gender.fromApiName(dto.gender),
+                        dto.image
+                    )
                 }
                 dao.insertAll(entities)
                 entities
@@ -49,16 +46,20 @@ class CharacterRepository(
                 dao.getCharacters(
                     name = "%${name ?: ""}%",
                     species = "%${species ?: ""}%",
-                    status = "%${status ?: ""}%",
-                    gender = "%${gender ?: ""}%"
+                    status = status,
+                    gender = gender,
+                    limit = 20,
+                    offset = (page - 1) * 20
                 )
             }
         } else {
             dao.getCharacters(
                 name = "%${name ?: ""}%",
                 species = "%${species ?: ""}%",
-                status = "%${status ?: ""}%",
-                gender = "%${gender ?: ""}%"
+                status = status,
+                gender = gender,
+                limit = 20,
+                offset = (page - 1) * 20
             )
         }
 

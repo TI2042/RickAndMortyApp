@@ -57,16 +57,16 @@ fun CharacterCard(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(horizontal = 12.dp)
             ) {
-                StatusDot(character.status)
+                StatusDot(character.status.apiName)
                 Spacer(Modifier.width(6.dp))
                 Text(
-                    text = character.status.capitalize(),
+                    text = character.status.apiName.capitalize(),
                     style = MaterialTheme.typography.body2
                 )
             }
             Spacer(Modifier.height(4.dp))
             Text(
-                text = "${character.species} • ${character.gender.capitalize()}",
+                text = "${character.species} • ${character.gender.apiName.capitalize()}",
                 style = MaterialTheme.typography.body2,
                 color = Color.Gray,
                 modifier = Modifier.padding(start = 12.dp, bottom = 12.dp)
@@ -77,9 +77,9 @@ fun CharacterCard(
 @Composable
 fun StatusDot(status: String) {
     val color = when (status.lowercase()) {
-        "alive" -> Color(0xFF43A047)
-        "dead" -> Color(0xFFE53935)
-        else -> Color(0xFFBDBDBD)
+        "alive" -> com.example.rickandmortyapp.ui.theme.GreenAlive
+        "dead" -> com.example.rickandmortyapp.ui.theme.RedDead
+        else -> com.example.rickandmortyapp.ui.theme.WhiteOther
     }
     Box(
         modifier = Modifier

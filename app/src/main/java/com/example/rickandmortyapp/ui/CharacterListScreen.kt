@@ -12,6 +12,8 @@ import com.example.rickandmortyapp.ui.customdesigne.PrettyFilterRow
 import com.example.rickandmortyapp.ui.customdesigne.PrettySearchBar
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import androidx.compose.ui.res.stringResource
+import com.example.rickandmortyapp.R
 
 @Composable
 fun CharacterListScreen(
@@ -36,13 +38,14 @@ fun CharacterListScreen(
             species = viewModel.selectedSpecies,
             onSpeciesSelected = { viewModel.onSpeciesSelected(it) },
             gender = viewModel.selectedGender,
-            onGenderSelected = { viewModel.onGenderSelected(it) }
+            onGenderSelected = { viewModel.onGenderSelected(it) },
+            statusLabel = stringResource(R.string.filter_status),
+            genderLabel = stringResource(R.string.filter_gender),
+            speciesLabel = stringResource(R.string.filter_species),
+            anyLabel = stringResource(R.string.filter_any)
+
         )
 
-        
-        Text("Найдено: ${characters.size}", modifier = Modifier.padding(8.dp))
-
-        
         val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isLoading)
 
         Box(modifier = Modifier.fillMaxSize().weight(1f)) {
@@ -63,7 +66,7 @@ fun CharacterListScreen(
                     }
                     characters.isEmpty() && !isLoading -> {
                         Text(
-                            "Ничего не найдено",
+                            stringResource(R.string.nothing_found),
                             modifier = Modifier.align(Alignment.Center)
                         )
                     }

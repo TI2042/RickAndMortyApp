@@ -1,5 +1,7 @@
 package com.example.rickandmortyapp.data.remote
 
+import com.example.rickandmortyapp.data.local.Gender
+import com.example.rickandmortyapp.data.local.Status
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -8,9 +10,9 @@ interface RickAndMortyApi {
     suspend fun getCharacters(
         @Query("page") page: Int = 1,
         @Query("name") name: String? = null,
-        @Query("status") status: String? = null,
+        @Query("status") status: Status? = null,
         @Query("species") species: String? = null,
-        @Query("gender") gender: String? = null
+        @Query("gender") gender: Gender? = null
     ): CharacterResponse
 }
 

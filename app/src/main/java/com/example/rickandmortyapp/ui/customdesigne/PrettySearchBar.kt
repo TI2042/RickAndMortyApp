@@ -13,7 +13,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.rickandmortyapp.R
 
 @Composable
 fun PrettySearchBar(
@@ -24,9 +26,9 @@ fun PrettySearchBar(
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        placeholder = { Text("Поиск персонажей") },
+        placeholder = { Text(stringResource(R.string.search_placeholder),) },
         leadingIcon = {
-            Icon(Icons.Filled.Search, contentDescription = "Search", tint = Color(0xFF7B61FF))
+            Icon(Icons.Filled.Search, contentDescription = "Search", tint = com.example.rickandmortyapp.ui.theme.CustomFocusedBorderColor)
         },
         singleLine = true,
         modifier = modifier
@@ -34,10 +36,10 @@ fun PrettySearchBar(
             .padding(horizontal = 12.dp, vertical = 10.dp)
             .shadow(6.dp, RoundedCornerShape(18.dp)),
         colors = TextFieldDefaults.outlinedTextFieldColors(
-            backgroundColor = Color(0xFFF5F7FB),
-            focusedBorderColor = Color(0xFF7B61FF),
-            unfocusedBorderColor = Color(0xFFE0E4ED),
-            cursorColor = Color(0xFF7B61FF)
+            backgroundColor = com.example.rickandmortyapp.ui.theme.CustomBackgroundColor,
+            focusedBorderColor = com.example.rickandmortyapp.ui.theme.CustomFocusedBorderColor,
+            unfocusedBorderColor = com.example.rickandmortyapp.ui.theme.CustomUnfocusedBorderColor,
+            cursorColor = com.example.rickandmortyapp.ui.theme.CustomFocusedBorderColor
         ),
         shape = RoundedCornerShape(18.dp)
     )

@@ -4,10 +4,14 @@ package com.example.rickandmortyapp.ui
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.rickandmortyapp.R
 import com.example.rickandmortyapp.data.local.CharacterEntity
+import com.example.rickandmortyapp.data.local.Gender
+import com.example.rickandmortyapp.data.local.Status
 import com.example.rickandmortyapp.repository.CharacterRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -45,7 +49,7 @@ class CharacterListViewModel(
         }
     }
 
-    fun onStatusSelected(status: String?) {
+    fun onStatusSelected(status: Status?) {
         selectedStatus = status
         debounceFilters()
     }
@@ -55,7 +59,7 @@ class CharacterListViewModel(
         debounceFilters()
     }
 
-    fun onGenderSelected(gender: String?) {
+    fun onGenderSelected(gender: Gender?) {
         selectedGender = gender
         debounceFilters()
     }
@@ -80,8 +84,8 @@ class CharacterListViewModel(
                     page = page,
                     name = searchQuery.ifBlank { null },
                     species = if (selectedSpecies.isNullOrBlank()) null else selectedSpecies,
-                    status = if (selectedStatus.isNullOrBlank()) null else selectedStatus,
-                    gender = if (selectedGender.isNullOrBlank()) null else selectedGender,
+                    status = selectedStatus,
+                    gender = selectedGender,
                     offline = offline
                 )
                 if (append) {
@@ -93,7 +97,7 @@ class CharacterListViewModel(
                 isLastPage = result.size < 20
                 currentPage = page
             } catch (e: Exception) {
-                error = "Ошибка загрузки: ${e.localizedMessage}"
+                error = "${R.string.loading_error} + ${e.localizedMessage}"
             }
             isLoading = false
             _isLoadingNextPage  = false
@@ -109,13 +113,13 @@ class CharacterListViewModel(
         }
     }
 
-    var selectedStatus by mutableStateOf<String?>(null)
+    var selectedStatus by mutableStateOf<Status?>(null)
         private set
 
     var selectedSpecies by mutableStateOf<String?>(null)
         private set
 
-    var selectedGender by mutableStateOf<String?>(null)
+    var selectedGender by mutableStateOf<Gender?>(null)
         private set
     fun loadNextPage() {
         if (!isLastPage && !isLoadingNextPage) {

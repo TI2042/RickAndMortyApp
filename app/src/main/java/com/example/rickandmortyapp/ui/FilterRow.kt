@@ -16,7 +16,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.rickandmortyapp.R
 
 @Composable
 fun FilterRow(
@@ -32,15 +34,22 @@ fun FilterRow(
         .padding(horizontal = 8.dp, vertical = 4.dp)) {
 
         DropdownFilter(
-            label = "Статус",
-            options = listOf(null, "alive", "dead", "unknown"),
+            label = stringResource(R.string.filter_status),
+            options = listOf(null,
+                stringResource(R.string.alive),
+                stringResource(R.string.dead),
+                stringResource(R.string.unknown)),
             selectedOption = status,
             onOptionSelected = onStatusSelected
         )
         Spacer(Modifier.width(8.dp))
         DropdownFilter(
-            label = "Пол",
-            options = listOf(null, "female", "male", "genderless", "unknown"),
+            label = stringResource(R.string.filter_gender),
+            options = listOf(null,
+                stringResource(R.string.female),
+                stringResource(R.string.male),
+                stringResource(R.string.genderless),
+                stringResource(R.string.unknown)),
             selectedOption = gender,
             onOptionSelected = onGenderSelected
         )
@@ -51,7 +60,7 @@ fun FilterRow(
             onValueChange = {
                 onSpeciesSelected(if (it.isNotEmpty()) it else null)
             },
-            label = { Text("Вид") },
+            label = { Text( stringResource(R.string.filter_species)) },
             modifier = Modifier.weight(1f)
         )
     }
@@ -66,7 +75,7 @@ fun DropdownFilter(
     onOptionSelected: (String?) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val displayText = selectedOption?.capitalize() ?: "Любой"
+    val displayText = selectedOption?.capitalize() ?: stringResource(R.string.filter_any)
     Box {
         OutlinedButton(onClick = { expanded = true }) {
             Text("$label: $displayText")
@@ -80,7 +89,7 @@ fun DropdownFilter(
                     onOptionSelected(option)
                     expanded = false
                 }) {
-                    Text(option?.capitalize() ?: "Любой")
+                    Text(option?.capitalize() ?: stringResource(R.string.filter_any))
                 }
             }
         }
